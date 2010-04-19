@@ -77,13 +77,6 @@ module Flock
       select_query(select_operations).size
     end
 
-    # FIXME
-    def counts_of_sources_for(destination_ids, graph_id)
-      destination_ids.unpack("Q*").map do |destination_id|
-        (sources[[destination_id, graph_id]] || []).size
-      end.pack("I*")
-    end
-
     private
     def select_query(select_operations)
       stack = []
@@ -163,16 +156,6 @@ module Flock
       @archived_destinations ||= Hash.new do |h, k|
         h[k] = []
       end
-    end
-
-    # deprecated
-    public
-    def offset_sources_for(destination_id, graph_id, offset, count)
-      (sources[[destination_id, graph_id]].slice(offset, count) || []).pack("Q*")
-    end
-
-    def offset_destinations_for(source_id, graph_id, offset, count)
-      (destinations[[source_id, graph_id]].slice(offset, count) || []).pack("Q*")
     end
   end
 end

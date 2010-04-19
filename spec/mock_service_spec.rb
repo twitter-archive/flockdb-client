@@ -8,7 +8,6 @@ describe Flock::MockService do
     describe 'execute'
     describe 'select'
     describe 'count'
-    describe 'counts_of_sources_for'
 
     # private methods
     describe 'select_query'
@@ -19,9 +18,5 @@ describe Flock::MockService do
     describe 'destinations'
     describe 'archived_sources'
     describe 'archived_destinations'
-
-    # deprecated public methods
-    describe 'offset_sources_for'
-    describe 'offset_destinations_for'
   end
 end
