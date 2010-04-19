@@ -47,9 +47,9 @@ The client supports a rich query api to build up complex set operations:
 CONTRIBUTORS
 ------------
 
-Nick Kallen
-Matt Freels
-Rael Dornfest
+Nick Kallen  
+Matt Freels  
+Rael Dornfest  
 
 
 LICENSE
