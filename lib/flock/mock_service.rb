@@ -188,7 +188,6 @@ module Flock
 
     def archive(source, graph, dest)
       remove_node(source, graph, dest, :normal).tap do |deleted|
-        p deleted
         deleted.each {|source, graph, dest| add_edge(source, graph, dest, :archived) }
       end
     end
