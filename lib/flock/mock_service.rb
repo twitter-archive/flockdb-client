@@ -51,9 +51,15 @@ module Flock
             end
           end
         when Edges::ExecuteOperationType::Remove
-          destination_ids.each do |destination_id|
-            backward_data_source[[destination_id, graph_id]].delete(source_id)
-            forward_data_source[[source_id, graph_id]].delete(destination_id)
+          if destination_ids.nil?
+            backward_data_source.delete([source_id, graph_id]).to_a.each do |n|
+              forward_data_source[[n, graph_id]].delete(source_id)
+            end
+          else
+            destination_ids.each do |destination_id|
+              backward_data_source[[destination_id, graph_id]].delete(source_id)
+              forward_data_source[[source_id, graph_id]].delete(destination_id)
+            end
           end
         when Edges::ExecuteOperationType::Archive
           if destination_ids.nil?
@@ -63,7 +69,14 @@ module Flock
               forward_data_source[[n, graph_id]].delete(source_id)
             end
           else
-            raise "not yet implemented"
+            destination_ids.each do |destination_id|
+              if backward_data_source[[destination_id, graph_id]].delete(source_id)
+                backward_archived_data_source[[destination_id, graph_id]] << source_id
+              end
+              if forward_data_source[[source_id, graph_id]].delete(destination_id)
+                forward_archived_data_source[[source_id, graph_id]] << destination_id
+              end
+            end
           end
         end
       end
@@ -71,6 +84,10 @@ module Flock
 
     def select(select_operations, page)
       iterate(select_query(select_operations), page)
+    end
+
+    def contains(source_id, graph_id, destination_id)
+      !!destinations[[source_id, graph_id]].detect {|i| i == destination_id}
     end
 
     def count(select_operations)

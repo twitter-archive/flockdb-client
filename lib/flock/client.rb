@@ -49,8 +49,9 @@ class Flock::Client
   end
 
   def contains(*query)
+    query = _query_args(query)
     _cache :contains, query do
-      select(*query).any?
+      service.contains(*query)
     end
   end
 
