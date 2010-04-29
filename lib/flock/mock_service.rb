@@ -2,10 +2,17 @@ module Flock
   module MockService
     extend self
 
+    EXEC_OPS = {
+      Edges::ExecuteOperationType::Add => :add,
+      Edges::ExecuteOperationType::Remove => :remove,
+      Edges::ExecuteOperationType::Archive => :archive
+    }
+
     attr_accessor :timeout, :fixtures
 
     def clear
-      @sources = @destinations = nil
+      @forward_edges = nil
+      @backward_edges = nil
     end
 
     def load(fixtures = nil)
@@ -14,71 +21,28 @@ module Flock
       clear
 
       fixtures.each do |fixture|
-        file, graph_id, source, destination = fixture.values_at(:file, :graph, :source, :destination)
+        file, graph, source, dest = fixture.values_at(:file, :graph, :source, :destination)
 
-        fixtures_data = YAML::load(ERB.new(File.open(file, 'r').read).result(binding)).sort
-        fixtures_data.each do |key, value|
-          sources[[value[destination], graph_id]] << value[source]
-          destinations[[value[source], graph_id]] << value[destination]
+        YAML::load(ERB.new(File.open(file, 'r').read).result(binding)).sort.each do |key, row|
+          add(row[source], graph, row[dest])
         end
       end
     end
 
     def inspect
-      "Flock::MockService: " + @sources.inspect + " - " + @destinations.inspect
+      "Flock::MockService: ( #{@forward_edges.inspect} - #{@backward_edges.inspect} )"
     end
 
     def execute(operations)
       operations = operations.operations
       operations.each do |operation|
         term = operation.term
-        backward_data_source, forward_data_source = term.is_forward ? [sources, destinations] : [destinations, sources]
-        backward_archived_data_source, forward_archived_data_source = term.is_forward ? [archived_sources, archived_destinations] : [archived_destinations, archived_sources]
-        source_id, graph_id = term.source_id, term.graph_id
-        destination_ids = term.destination_ids && term.destination_ids.unpack("Q*")
-        case operation.operation_type
-        when Edges::ExecuteOperationType::Add
-          if destination_ids.nil?
-            backward_archived_data_source.delete([source_id, graph_id]).to_a.each do |n|
-              (forward_data_source[[n, graph_id]] << source_id).uniq!
-              (backward_data_source[[source_id, graph_id]] << n).uniq!
-              forward_archived_data_source[[n, graph_id]].delete(source_id)
-            end
-          else
-            destination_ids.each do |destination_id|
-              backward_data_source[[destination_id, graph_id]] << source_id
-              forward_data_source[[source_id, graph_id]] << destination_id
-            end
-          end
-        when Edges::ExecuteOperationType::Remove
-          if destination_ids.nil?
-            backward_data_source.delete([source_id, graph_id]).to_a.each do |n|
-              forward_data_source[[n, graph_id]].delete(source_id)
-            end
-          else
-            destination_ids.each do |destination_id|
-              backward_data_source[[destination_id, graph_id]].delete(source_id)
-              forward_data_source[[source_id, graph_id]].delete(destination_id)
-            end
-          end
-        when Edges::ExecuteOperationType::Archive
-          if destination_ids.nil?
-            backward_data_source.delete([source_id, graph_id]).to_a.each do |n|
-              forward_archived_data_source[[n, graph_id]] << source_id
-              backward_archived_data_source[[source_id, graph_id]] << n
-              forward_data_source[[n, graph_id]].delete(source_id)
-            end
-          else
-            destination_ids.each do |destination_id|
-              if backward_data_source[[destination_id, graph_id]].delete(source_id)
-                backward_archived_data_source[[destination_id, graph_id]] << source_id
-              end
-              if forward_data_source[[source_id, graph_id]].delete(destination_id)
-                forward_archived_data_source[[source_id, graph_id]] << destination_id
-              end
-            end
-          end
-        end
+        graph, source = term.graph_id, term.source_id
+        dest = term.destination_ids && term.destination_ids.unpack('Q*')
+
+        source, dest = dest, source unless term.is_forward
+
+        self.send(EXEC_OPS[operation.operation_type], source, graph, dest)
       end
     end
 
@@ -86,8 +50,8 @@ module Flock
       iterate(select_query(select_operations), page)
     end
 
-    def contains(source_id, graph_id, destination_id)
-      !!destinations[[source_id, graph_id]].detect {|i| i == destination_id}
+    def contains(source, graph, dest)
+      forward_edges[graph][:normal][source].include?(dest)
     end
 
     def count(select_operations)
@@ -95,18 +59,16 @@ module Flock
     end
 
     private
+
     def select_query(select_operations)
       stack = []
       select_operations.each do |select_operation|
         case select_operation.operation_type
         when Edges::SelectOperationType::SimpleQuery
-          query_term = select_operation.term
-          data_source = query_term.is_forward ? destinations : sources
-          data = data_source[[query_term.source_id, query_term.graph_id]]
-          if query_term.destination_ids
-            data &= query_term.destination_ids.unpack("Q*")
-          end
-          stack.push(data)
+          term = select_operation.term
+          source = term.is_forward ? forward_edges : backward_edges
+          data = source[term.graph_id][:normal][term.source_id]
+          stack.push(term.destination_ids ? (term.destination_ids.unpack('Q*') & data) : data)
         when Edges::SelectOperationType::Intersection
           stack.push(stack.pop & stack.pop)
         when Edges::SelectOperationType::Union
@@ -120,16 +82,15 @@ module Flock
       stack.pop
     end
 
-    private
-
     def iterate(data, page)
       return empty_result if page.cursor == Flock::CursorEnd
 
-      start = if page.cursor < Flock::CursorStart
-                [-page.cursor - page.count, 0].max
-              else
-                page.cursor == Flock::CursorStart ? 0 : page.cursor
-              end
+      start =
+        if page.cursor < Flock::CursorStart
+          [-page.cursor - page.count, 0].max
+        else
+          page.cursor == Flock::CursorStart ? 0 : page.cursor
+        end
       rv = data.slice(start, page.count)
       next_cursor = (start + page.count >= data.size) ? Flock::CursorEnd : start + page.count
       prev_cursor = (start <= 0) ? Flock::CursorEnd : -start
@@ -142,36 +103,93 @@ module Flock
     end
 
     def empty_result
-      @empty_result ||= begin
-                          empty_result = Flock::Results.new
-                          empty_result.ids = ""
-                          empty_result.next_cursor = Flock::CursorEnd
-                          empty_result.prev_cursor = Flock::CursorEnd
-                          empty_result
-                        end
+      @empty_result ||=
+        begin
+          empty_result = Flock::Results.new
+          empty_result.ids = ""
+          empty_result.next_cursor = Flock::CursorEnd
+          empty_result.prev_cursor = Flock::CursorEnd
+          empty_result
+        end
     end
 
-    def sources
-      @sources ||= Hash.new do |h, k|
-        h[k] = []
+
+    [:forward_edges, :backward_edges].each do |name|
+      class_eval("def #{name}; @#{name} ||= new_edges_hash end")
+    end
+
+    def new_edges_hash
+      Hash.new { |h,k| h[k] = Hash.new { |h,k| h[k] = Hash.new { |h2,k2| h2[k2] = [] } } }
+    end
+
+    def add_row(store, source, dest)
+      (store[source] << dest).uniq!
+    end
+
+    def add_edge(source, graph, dest, state)
+      add_row(forward_edges[graph][state], source, dest)
+      add_row(backward_edges[graph][state], dest, source)
+      [source, graph, dest]
+    end
+
+    def remove_row(store, source, dest)
+      store[source].delete(dest).tap do
+        store.delete(source) if store[source].empty?
       end
     end
 
-    def destinations
-      @destinations ||= Hash.new do |h, k|
-        h[k] = []
+    def remove_edge(source, graph, dest, state)
+      forward = remove_row(forward_edges[graph][state], source, dest)
+      backward = remove_row(backward_edges[graph][state], dest, source)
+
+      [source, graph, dest] if forward and backward
+    end
+
+    def remove_node(source, graph, dest, state)
+      raise unless source or dest
+
+      sources, dests = Array(source), Array(dest)
+
+      sources = dests.map{|dest| backward_edges[graph][state][dest] }.inject([]) {|a,b| a.concat b } if sources.empty?
+      dests = sources.map{|source| forward_edges[graph][state][source] }.inject([]) {|a,b| a.concat b } if dests.empty?
+
+      [].tap do |deleted|
+        sources.each {|s| dests.each {|d| deleted << remove_edge(s, graph, d, state) } }
+      end.compact
+    end
+
+    def unarchive_node(source, graph, dest)
+      remove_node(source, graph, dest, :archived).tap do |deleted|
+        deleted.each {|d| add_edge(source, graph, dest, :normal) }
       end
     end
 
-    def archived_sources
-      @archived_sources ||= Hash.new do |h, k|
-        h[k] = []
+    # actual graph helpers
+
+    def add(source, graph, dest)
+      if source.nil? or dest.nil?
+        unarchive_node(source, graph, dest)
+      else
+        sources, dests = Array(source), Array(dest)
+
+        sources.each do |s|
+          dests.each do |d|
+            add_edge(s, graph, d, :normal)
+            remove_edge(s, graph, d, :archived)
+          end
+        end
       end
     end
 
-    def archived_destinations
-      @archived_destinations ||= Hash.new do |h, k|
-        h[k] = []
+    def remove(source, graph, dest)
+      remove_node(source, graph, dest, :archived)
+      remove_node(source, graph, dest, :normal)
+    end
+
+    def archive(source, graph, dest)
+      remove_node(source, graph, dest, :normal).tap do |deleted|
+        p deleted
+        deleted.each {|source, graph, dest| add_edge(source, graph, dest, :archived) }
       end
     end
   end
