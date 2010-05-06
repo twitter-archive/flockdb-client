@@ -19,6 +19,11 @@ module Flock
       self
     end
 
+    def negate(source_id, graph_id, destination_id)
+      @operations << ExecuteOperation.new(Edges::ExecuteOperationType::Negate, [source_id, graph_id, destination_id])
+      self
+    end
+
     def apply
       @service.execute(to_thrift)
     end

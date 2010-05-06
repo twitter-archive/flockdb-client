@@ -1,7 +1,8 @@
 module Flock
   class QueryTerm
-    def initialize(query)
+    def initialize(query, state = [Flock::Edges::EdgeState::Positive])
       @query = query
+      @state = state
     end
 
     def to_thrift
@@ -19,6 +20,7 @@ module Flock
         term.is_forward = false
       end
       term.graph_id = @query[1]
+      term.state_ids = @state
       term
     end
   end

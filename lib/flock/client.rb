@@ -72,7 +72,7 @@ class Flock::Client
     ops.apply unless in_transaction?
   end
 
-  [:add, :remove, :archive, :unarchive].each do |method|
+  [:add, :remove, :archive, :unarchive, :negate].each do |method|
     class_eval "def #{method}(*args); update(#{method.inspect}, *args) end", __FILE__, __LINE__
   end
 

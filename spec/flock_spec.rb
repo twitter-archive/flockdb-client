@@ -25,6 +25,13 @@ describe Flock do
     end
   end
 
+  describe 'negate' do
+    it 'works' do
+      flock.negate(1,1,2)
+      flock.contains(1,1,2).should == false
+    end
+  end
+
   describe 'count' do
     it 'works' do
       flock.count(1,1,nil).should == 2
@@ -107,7 +114,7 @@ describe Flock do
     end
 
     describe 'backwards' do
-      before do 
+      before do
         flock.archive(nil,1,1)
       end
 
