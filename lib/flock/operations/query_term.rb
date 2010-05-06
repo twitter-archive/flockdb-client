@@ -1,5 +1,6 @@
 module Flock
   class QueryTerm
+    attr_accessor :state
     def initialize(query, state = [Flock::Edges::EdgeState::Positive])
       @query = query
       @state = state
