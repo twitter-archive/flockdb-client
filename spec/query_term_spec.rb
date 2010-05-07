@@ -2,21 +2,26 @@ require 'spec_helper'
 
 describe Flock::QueryTerm do
   describe '#new' do
-    it 'should take states' do
-      qt = Flock::QueryTerm.new("query", state = ['state1', 'state2'])
-      qt.state.should == state
+    it 'should extract first 3 items into the query' do
+      qt = Flock::QueryTerm.new([1, 1, 2, :positive, :negative])
+      qt.query.should == [1, 1, 2]
     end
 
-    it 'should default to Positive state' do
-      qt = Flock::QueryTerm.new("query")
-      qt.state.should == [Flock::Edges::EdgeState::Positive]
+    it 'should extract states' do
+      qt = Flock::QueryTerm.new([1, 1, 2, :positive, :negative])
+      qt.states.should == [:positive, :negative]
+    end
+
+    it 'should default state to positive' do
+      qt = Flock::QueryTerm.new([1, 1, 2])
+      qt.states.should == [:positive]
     end
   end
 
   describe "#to_thrift" do
     it "should add state to thrift object" do
-      qt = Flock::QueryTerm.new([1,1,3], state = ['state1', 'state2'])
-      qt.to_thrift.state_ids.should == state
+      qt = Flock::QueryTerm.new([1, 1, 2, :positive, :negative])
+      qt.to_thrift.state_ids.should == [Flock::Edges::EdgeState::Positive, Flock::Edges::EdgeState::Negative]
     end
   end
 end

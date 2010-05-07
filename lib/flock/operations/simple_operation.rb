@@ -8,14 +8,9 @@ module Flock
     def to_thrift
       operation = Edges::SelectOperation.new
       operation.operation_type = Edges::SelectOperationType::SimpleQuery
-      operation.term = QueryTerm.new(@query, @state).to_thrift
+      operation.term = QueryTerm.new(@query).to_thrift
 
       Array(operation)
-    end
-
-    def state(args)
-      @state = args
-      return self
     end
   end
 end
