@@ -52,7 +52,7 @@ module Flock
     end
 
     def contains(source, graph, dest)
-      forward_edges[graph][:normal][source].include?(dest)
+      forward_edges[graph][Edges::EdgeState::Positive][source].include?(dest)
     end
 
     def count(select_operations)
@@ -68,7 +68,8 @@ module Flock
         when Edges::SelectOperationType::SimpleQuery
           term = select_operation.term
           source = term.is_forward ? forward_edges : backward_edges
-          data = source[term.graph_id][:normal][term.source_id]
+          states = term.state_ids || [Edges::EdgeState::Positive]
+          data = source[term.graph_id].inject([]) {|r, (s, e)| states.include?(s) ? r.concat(e[term.source_id]) : r }.uniq
           stack.push(term.destination_ids ? (term.destination_ids.unpack('Q*') & data) : data)
         when Edges::SelectOperationType::Intersection
           stack.push(stack.pop & stack.pop)
@@ -159,44 +160,36 @@ module Flock
       end.compact
     end
 
-    def unarchive_node(source, graph, dest)
-      remove_node(source, graph, dest, :archived).tap do |deleted|
-        deleted.each {|source, graph, dest| add_edge(source, graph, dest, :normal) }
-      end
-    end
+    def color_node(source, graph, dest, dest_state)
+      raise ArgumentError unless Edges::EdgeState::VALUE_MAP.keys.include? dest_state
 
-    # actual graph helpers
+      source_states = (Edges::EdgeState::VALUE_MAP.keys - [dest_state])
 
-    def add(source, graph, dest)
       if source.nil? or dest.nil?
-        unarchive_node(source, graph, dest)
+        source_states.each do |source_state|
+          remove_node(source, graph, dest, source_state).tap do |deleted|
+            deleted.each {|source, graph, dest| add_edge(source, graph, dest, dest_state) }
+          end
+        end
+
       else
         sources, dests = Array(source), Array(dest)
 
         sources.each do |s|
           dests.each do |d|
-            add_edge(s, graph, d, :normal)
-            remove_edge(s, graph, d, :archived)
+            add_edge(s, graph, d, dest_state)
+            source_states.each { |state| remove_edge(s, graph, d, state) }
           end
         end
       end
     end
 
-    def remove(source, graph, dest)
-      remove_node(source, graph, dest, :archived)
-      remove_node(source, graph, dest, :normal)
-    end
+    # must map manually since execute operations do not line up with
+    # their actual colors
+    op_color_map = {:add => 0, :remove => 1, :archive => 2, :negate => 3}
 
-    def negate(source, graph, dest)
-      remove_node(source, graph, dest, :normal).tap do |negated|
-        negated.each {|source, graph, dest| add_edge(source, graph, dest, :negate) }
-      end
-    end
-
-    def archive(source, graph, dest)
-      remove_node(source, graph, dest, :normal).tap do |deleted|
-        deleted.each {|source, graph, dest| add_edge(source, graph, dest, :archived) }
-      end
+    op_color_map.each do |op, color|
+      class_eval "def #{op}(s, g, d); color_node(s, g, d, #{color}) end", __FILE__, __LINE__
     end
   end
 end

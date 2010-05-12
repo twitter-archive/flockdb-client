@@ -1,40 +1,37 @@
 module Flock
   class QueryTerm
-    attr_reader :states, :query
+    attr_accessor :source, :graph, :destination, :states
+
     def initialize(query)
-      if query.size <= 3
-        @states = [:positive]
+      case query.size
+      when 3, 4
+        @source, @graph, @destination, @states = *query
       else
-        @states = query[3..-1]
+        raise ArgumentError
       end
-      @query = query[0..2]
+    end
+
+    def forward?
+      @source.is_a? Numeric
     end
 
     def to_thrift
-      raise ArgumentError unless @query.size == 3
-
       term = Edges::QueryTerm.new
-      case @query.first
-      when Numeric
-        term.source_id = @query.first
-        term.destination_ids = Array(@query.last).pack("Q*") if @query.last
-        term.is_forward = true
-      else
-        term.source_id = @query.last
-        term.destination_ids = Array(@query.first).pack("Q*") if @query.first
-        term.is_forward = false
-      end
-      term.graph_id = @query[1]
-      term.state_ids = @states.collect { |state| value_of(state) }
-      term
-    end
+      term.graph_id = @graph
+      term.state_ids = @states unless @states.nil? or @states.empty?
+      term.is_forward = forward?
 
-    def value_of(sym)
-      Flock::Edges::EdgeState::VALUE_MAP.each do |k, v|
-        if sym == v.downcase.to_sym
-          return k
+      source, destination =
+        if term.is_forward
+          [@source, @destination]
+        else
+          [@destination, @source]
         end
-      end
+
+      term.source_id = source
+      term.destination_ids = Array(destination).pack("Q*") if destination
+
+      term
     end
   end
 end

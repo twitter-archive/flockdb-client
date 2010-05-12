@@ -1,5 +1,10 @@
 class Flock::Client
 
+  # symbol => state_id map
+  STATES = Flock::Edges::EdgeState::VALUE_MAP.inject({}) do |states, (id, name)|
+    states.update name.downcase.to_sym => id
+  end.freeze
+
   attr_accessor :graphs
   attr_reader :service
 
@@ -49,7 +54,7 @@ class Flock::Client
   end
 
   def contains(*query)
-    query = _query_args(query)
+    query = _query_args(query)[0, 3]
     _cache :contains, query do
       service.contains(*query)
     end
@@ -68,13 +73,16 @@ class Flock::Client
   def update(method, source_id, graph, destination_id, priority = Flock::Priority::High)
     _cache_clear
     ops = current_transaction || Flock::ExecuteOperations.new(@service, priority)
-    ops.send(method, *_query_args([source_id, graph, destination_id]))
+    ops.send(method, *_query_args([source_id, graph, destination_id])[0, 3])
     ops.apply unless in_transaction?
   end
 
-  [:add, :remove, :archive, :unarchive, :negate].each do |method|
+  Flock::Edges::ExecuteOperationType::VALUE_MAP.values.each do |method|
+    method = method.downcase
     class_eval "def #{method}(*args); update(#{method.inspect}, *args) end", __FILE__, __LINE__
   end
+
+  alias unarchive add
 
   def transaction(priority = Flock::Priority::High, &block)
     new_transaction = !in_transaction?
@@ -113,9 +121,19 @@ class Flock::Client
     end
   end
 
+  def _lookup_states(states)
+    states = states.flatten.compact.map do |s|
+      if s.is_a? Integer
+        s
+      else
+        STATES[s] or raise UnknownStateError.new(s)
+      end
+    end
+  end
+
   def _query_args(args)
-    source, graph, destination = *((args.length == 1) ? args.first : args)
-    [_node_arg(source), _lookup_graph(graph), _node_arg(destination)]
+    source, graph, destination, *states = *((args.length == 1) ? args.first : args)
+    [_node_arg(source), _lookup_graph(graph), _node_arg(destination), _lookup_states(states)]
   end
 
   def _node_arg(node)

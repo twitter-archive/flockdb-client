@@ -30,6 +30,12 @@ module Flock
     end
   end
 
+  class UnknownStateError < FlockException
+    def initialize(state)
+      super("Unable to look up id for state #{state.inspect}. Valid states are #{ Flock::Client::STATES.keys.sort.map{|s| s.inspect }.join(', ') }")
+    end
+  end
+
   class << self
     attr_accessor :default_service_class, :graphs
 
