@@ -5,11 +5,7 @@ require 'thrift_client'
 require 'flock/mixins/sizeable'
 
 # thrift sources. load order is important.
-require 'flock/thrift/flock_types'
-require 'flock/thrift/flock_constants'
-require 'flock/thrift/shards'
-require 'flock/thrift/edges_types'
-require 'flock/thrift/edges'
+require 'flock/thrift'
 
 require 'flock/operation'
 require 'flock/operations/query_term'
@@ -23,6 +19,13 @@ require 'flock/client'
 
 module Flock
   autoload :MockService, 'flock/mock_service'
+  
+  FlockException = Edges::FlockException
+  Priority = Edges::Priority
+  CursorStart = -1
+  CursorEnd = 0
+  Page = Edges::Page
+  Results = Edges::Results
 
   class UnknownGraphError < FlockException
     def initialize(graph)
