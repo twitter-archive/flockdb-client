@@ -5,6 +5,12 @@ require 'thrift_client'
 require 'flock/mixins/sizeable'
 
 # thrift sources. load order is important.
+module Flock
+  module Edges
+    module FlockDB
+    end
+  end
+end
 require 'flock/thrift'
 
 require 'flock/operation'
@@ -19,7 +25,7 @@ require 'flock/client'
 
 module Flock
   autoload :MockService, 'flock/mock_service'
-  
+
   FlockException = Edges::FlockException
   Priority = Edges::Priority
   CursorStart = -1

@@ -103,6 +103,28 @@ module Flock
 
         end
 
+        class Metadata
+          include ::Thrift::Struct
+          SOURCE_ID = 1
+          STATE_ID = 2
+          COUNT = 3
+          UPDATED_AT = 4
+
+          ::Thrift::Struct.field_accessor self, :source_id, :state_id, :count, :updated_at
+          FIELDS = {
+            SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
+            STATE_ID => {:type => ::Thrift::Types::I32, :name => 'state_id'},
+            COUNT => {:type => ::Thrift::Types::I32, :name => 'count'},
+            UPDATED_AT => {:type => ::Thrift::Types::I32, :name => 'updated_at'}
+          }
+
+          def struct_fields; FIELDS; end
+
+          def validate
+          end
+
+        end
+
         class Edge
           include ::Thrift::Struct
           SOURCE_ID = 1
@@ -224,13 +246,11 @@ module Flock
           include ::Thrift::Struct
           OPERATIONS = 1
           PAGE = 2
-          USER_TIMEOUT_MS = 3
 
-          ::Thrift::Struct.field_accessor self, :operations, :page, :user_timeout_ms
+          ::Thrift::Struct.field_accessor self, :operations, :page
           FIELDS = {
             OPERATIONS => {:type => ::Thrift::Types::LIST, :name => 'operations', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::SelectOperation}},
-            PAGE => {:type => ::Thrift::Types::STRUCT, :name => 'page', :class => Flock::Edges::Page},
-            USER_TIMEOUT_MS => {:type => ::Thrift::Types::I32, :name => 'user_timeout_ms', :optional => true}
+            PAGE => {:type => ::Thrift::Types::STRUCT, :name => 'page', :class => Flock::Edges::Page}
           }
 
           def struct_fields; FIELDS; end

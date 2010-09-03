@@ -46,6 +46,9 @@ class Flock::Client
     @cache = {} if @cache
   end
 
+  def get_metadata(source_id, graph_id)
+  end
+
 
   # queries
 
