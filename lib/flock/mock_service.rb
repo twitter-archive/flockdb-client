@@ -65,17 +65,17 @@ module Flock
       stack = []
       select_operations.each do |select_operation|
         case select_operation.operation_type
-        when Edges::FlockDB::SelectOperationType::SimpleQuery
+        when Edges::SelectOperationType::SimpleQuery
           term = select_operation.term
           source = term.is_forward ? forward_edges : backward_edges
           states = term.state_ids || [Edges::EdgeState::Positive]
           data = source[term.graph_id].inject([]) {|r, (s, e)| states.include?(s) ? r.concat(e[term.source_id]) : r }.uniq
           stack.push(term.destination_ids ? (term.destination_ids.unpack('Q*') & data) : data)
-        when Edges::FlockDB::SelectOperationType::Intersection
+        when Edges::SelectOperationType::Intersection
           stack.push(stack.pop & stack.pop)
-        when Edges::FlockDB::SelectOperationType::Union
+        when Edges::SelectOperationType::Union
           stack.push(stack.pop | stack.pop)
-        when Edges::FlockDB::SelectOperationType::Difference
+        when Edges::SelectOperationType::Difference
           operand2 = stack.pop
           operand1 = stack.pop
           stack.push(operand1 - operand2)
