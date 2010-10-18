@@ -45,37 +45,6 @@ require 'flockdb_types'
                   raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'get failed: unknown result')
                 end
 
-                def get_metadata(source_id, graph_id)
-                  send_get_metadata(source_id, graph_id)
-                  return recv_get_metadata()
-                end
-
-                def send_get_metadata(source_id, graph_id)
-                  send_message('get_metadata', Get_metadata_args, :source_id => source_id, :graph_id => graph_id)
-                end
-
-                def recv_get_metadata()
-                  result = receive_message(Get_metadata_result)
-                  return result.success unless result.success.nil?
-                  raise result.ex unless result.ex.nil?
-                  raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'get_metadata failed: unknown result')
-                end
-
-                def set_state_id(source_id, graph_id, state_id)
-                  send_set_state_id(source_id, graph_id, state_id)
-                  recv_set_state_id()
-                end
-
-                def send_set_state_id(source_id, graph_id, state_id)
-                  send_message('set_state_id', Set_state_id_args, :source_id => source_id, :graph_id => graph_id, :state_id => state_id)
-                end
-
-                def recv_set_state_id()
-                  result = receive_message(Set_state_id_result)
-                  raise result.ex unless result.ex.nil?
-                  return
-                end
-
                 def select2(queries)
                   send_select2(queries)
                   return recv_select2()
@@ -151,6 +120,7 @@ require 'flockdb_types'
                 def recv_count()
                   result = receive_message(Count_result)
                   return result.success unless result.success.nil?
+                  raise result.ex unless result.ex.nil?
                   raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'count failed: unknown result')
                 end
 
@@ -166,6 +136,7 @@ require 'flockdb_types'
                 def recv_select()
                   result = receive_message(Select_result)
                   return result.success unless result.success.nil?
+                  raise result.ex unless result.ex.nil?
                   raise ::Thrift::ApplicationException.new(::Thrift::ApplicationException::MISSING_RESULT, 'select failed: unknown result')
                 end
 
@@ -194,28 +165,6 @@ require 'flockdb_types'
                     result.ex = ex
                   end
                   write_result(result, oprot, 'get', seqid)
-                end
-
-                def process_get_metadata(seqid, iprot, oprot)
-                  args = read_args(iprot, Get_metadata_args)
-                  result = Get_metadata_result.new()
-                  begin
-                    result.success = @handler.get_metadata(args.source_id, args.graph_id)
-                  rescue Flock::Edges::FlockException => ex
-                    result.ex = ex
-                  end
-                  write_result(result, oprot, 'get_metadata', seqid)
-                end
-
-                def process_set_state_id(seqid, iprot, oprot)
-                  args = read_args(iprot, Set_state_id_args)
-                  result = Set_state_id_result.new()
-                  begin
-                    @handler.set_state_id(args.source_id, args.graph_id, args.state_id)
-                  rescue Flock::Edges::FlockException => ex
-                    result.ex = ex
-                  end
-                  write_result(result, oprot, 'set_state_id', seqid)
                 end
 
                 def process_select2(seqid, iprot, oprot)
@@ -265,14 +214,22 @@ require 'flockdb_types'
                 def process_count(seqid, iprot, oprot)
                   args = read_args(iprot, Count_args)
                   result = Count_result.new()
-                  result.success = @handler.count(args.operations)
+                  begin
+                    result.success = @handler.count(args.operations)
+                  rescue Flock::Edges::FlockException => ex
+                    result.ex = ex
+                  end
                   write_result(result, oprot, 'count', seqid)
                 end
 
                 def process_select(seqid, iprot, oprot)
                   args = read_args(iprot, Select_args)
                   result = Select_result.new()
-                  result.success = @handler.select(args.operations, args.page)
+                  begin
+                    result.success = @handler.select(args.operations, args.page)
+                  rescue Flock::Edges::FlockException => ex
+                    result.ex = ex
+                  end
                   write_result(result, oprot, 'select', seqid)
                 end
 
@@ -346,78 +303,6 @@ require 'flockdb_types'
                 ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => Flock::Edges::Edge},
-                  EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
-                }
-
-                def struct_fields; FIELDS; end
-
-                def validate
-                end
-
-              end
-
-              class Get_metadata_args
-                include ::Thrift::Struct
-                SOURCE_ID = 1
-                GRAPH_ID = 2
-
-                ::Thrift::Struct.field_accessor self, :source_id, :graph_id
-                FIELDS = {
-                  SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
-                  GRAPH_ID => {:type => ::Thrift::Types::I32, :name => 'graph_id'}
-                }
-
-                def struct_fields; FIELDS; end
-
-                def validate
-                end
-
-              end
-
-              class Get_metadata_result
-                include ::Thrift::Struct
-                SUCCESS = 0
-                EX = 1
-
-                ::Thrift::Struct.field_accessor self, :success, :ex
-                FIELDS = {
-                  SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => Flock::Edges::Metadata},
-                  EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
-                }
-
-                def struct_fields; FIELDS; end
-
-                def validate
-                end
-
-              end
-
-              class Set_state_id_args
-                include ::Thrift::Struct
-                SOURCE_ID = 1
-                GRAPH_ID = 2
-                STATE_ID = 3
-
-                ::Thrift::Struct.field_accessor self, :source_id, :graph_id, :state_id
-                FIELDS = {
-                  SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
-                  GRAPH_ID => {:type => ::Thrift::Types::I32, :name => 'graph_id'},
-                  STATE_ID => {:type => ::Thrift::Types::I32, :name => 'state_id'}
-                }
-
-                def struct_fields; FIELDS; end
-
-                def validate
-                end
-
-              end
-
-              class Set_state_id_result
-                include ::Thrift::Struct
-                EX = 1
-
-                ::Thrift::Struct.field_accessor self, :ex
-                FIELDS = {
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
                 }
 
@@ -581,10 +466,12 @@ require 'flockdb_types'
               class Count_result
                 include ::Thrift::Struct
                 SUCCESS = 0
+                EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success
+                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
-                  SUCCESS => {:type => ::Thrift::Types::I32, :name => 'success'}
+                  SUCCESS => {:type => ::Thrift::Types::I32, :name => 'success'},
+                  EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
                 }
 
                 def struct_fields; FIELDS; end
@@ -615,10 +502,12 @@ require 'flockdb_types'
               class Select_result
                 include ::Thrift::Struct
                 SUCCESS = 0
+                EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success
+                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
-                  SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => Flock::Edges::Results}
+                  SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => Flock::Edges::Results},
+                  EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
                 }
 
                 def struct_fields; FIELDS; end

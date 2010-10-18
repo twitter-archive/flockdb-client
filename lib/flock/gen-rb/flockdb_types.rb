@@ -103,28 +103,6 @@ module Flock
 
         end
 
-        class Metadata
-          include ::Thrift::Struct
-          SOURCE_ID = 1
-          STATE_ID = 2
-          COUNT = 3
-          UPDATED_AT = 4
-
-          ::Thrift::Struct.field_accessor self, :source_id, :state_id, :count, :updated_at
-          FIELDS = {
-            SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
-            STATE_ID => {:type => ::Thrift::Types::I32, :name => 'state_id'},
-            COUNT => {:type => ::Thrift::Types::I32, :name => 'count'},
-            UPDATED_AT => {:type => ::Thrift::Types::I32, :name => 'updated_at'}
-          }
-
-          def struct_fields; FIELDS; end
-
-          def validate
-          end
-
-        end
-
         class Edge
           include ::Thrift::Struct
           SOURCE_ID = 1
