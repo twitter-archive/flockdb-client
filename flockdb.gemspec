@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{flockdb}
-  s.version = "0.4.0"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Freels", "Rael Dornfest", "Nick Kallen"]
-  s.date = %q{2010-05-11}
+  s.date = %q{2010-10-18}
   s.description = %q{Get your flock on in Ruby.}
   s.email = %q{freels@twitter.com}
   s.extra_rdoc_files = [
@@ -25,6 +25,9 @@ Gem::Specification.new do |s|
      "flockdb.gemspec",
      "lib/flock.rb",
      "lib/flock/client.rb",
+     "lib/flock/gen-rb/flock_d_b.rb",
+     "lib/flock/gen-rb/flockdb_constants.rb",
+     "lib/flock/gen-rb/flockdb_types.rb",
      "lib/flock/mixins/sizeable.rb",
      "lib/flock/mock_service.rb",
      "lib/flock/operation.rb",
@@ -35,11 +38,7 @@ Gem::Specification.new do |s|
      "lib/flock/operations/select_operation.rb",
      "lib/flock/operations/simple_operation.rb",
      "lib/flock/service.rb",
-     "lib/flock/thrift/edges.rb",
-     "lib/flock/thrift/edges_types.rb",
-     "lib/flock/thrift/flock_constants.rb",
-     "lib/flock/thrift/flock_types.rb",
-     "lib/flock/thrift/shards.rb",
+     "lib/flock/thrift.rb",
      "lib/flockdb.rb",
      "spec/execute_operations_spec.rb",
      "spec/flock_spec.rb",

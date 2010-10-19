@@ -4,9 +4,9 @@
 # DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 #
 
-  module Flock
-    CursorStart = -1
+require 'flockdb_types'
 
-    CursorEnd = 0
-
+    module Flock
+      module Edges
+  end
 end
