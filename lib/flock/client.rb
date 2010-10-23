@@ -94,7 +94,7 @@ class Flock::Client
         current_transaction
       end
 
-    result = yield self if block.arity == 1
+    result = yield self
     ops.apply if new_transaction
     result
 

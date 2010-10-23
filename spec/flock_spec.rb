@@ -16,6 +16,15 @@ describe Flock do
     it 'works' do
       flock.contains(1,1,2).should == true
     end
+
+    it 'works within nested transactions' do
+      flock.transaction do
+        flock.transaction do |f|
+          f.add(1,1,5)
+        end
+      end
+      flock.contains(1,1,5).should == true
+    end
   end
 
   describe 'remove' do
