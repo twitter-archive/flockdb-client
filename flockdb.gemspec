@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{flockdb}
-  s.version = "0.5.0"
+  s.version = "0.5.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Freels", "Rael Dornfest", "Nick Kallen"]
-  s.date = %q{2010-10-19}
+  s.date = %q{2010-10-22}
   s.description = %q{Get your flock on in Ruby.}
   s.email = %q{freels@twitter.com}
   s.extra_rdoc_files = [
