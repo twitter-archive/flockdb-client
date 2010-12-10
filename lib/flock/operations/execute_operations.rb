@@ -1,7 +1,7 @@
 module Flock
   class ExecuteOperations
-    def initialize(service, priority)
-      @service, @operations, @priority = service, [], priority
+    def initialize(service, priority, execute_at = nil)
+      @service, @operations, @priority, @execute_at = service, [], priority, execute_at 
     end
 
     Flock::Edges::ExecuteOperationType::VALUE_MAP.each do |op_id, op|
@@ -17,6 +17,7 @@ module Flock
       operations = Edges::ExecuteOperations.new
       operations.operations = @operations.map(&:to_thrift)
       operations.priority = @priority
+      operations.execute_at = @execute_at.to_i if @execute_at
       operations
     end
   end

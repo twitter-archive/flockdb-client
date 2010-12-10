@@ -70,9 +70,9 @@ class Flock::Client
 
   # edge manipulation
 
-  def update(method, source_id, graph, destination_id, priority = Flock::Priority::High)
+  def update(method, source_id, graph, destination_id, priority = Flock::Priority::High, execute_at = nil)
     _cache_clear
-    ops = current_transaction || Flock::ExecuteOperations.new(@service, priority)
+    ops = current_transaction || Flock::ExecuteOperations.new(@service, priority, execute_at)
     ops.send(method, *_query_args([source_id, graph, destination_id])[0, 3])
     ops.apply unless in_transaction?
   end
@@ -84,12 +84,12 @@ class Flock::Client
 
   alias unarchive add
 
-  def transaction(priority = Flock::Priority::High, &block)
+  def transaction(priority = Flock::Priority::High, execute_at = nil, &block)
     new_transaction = !in_transaction?
 
     ops =
       if new_transaction
-        Thread.current[:edge_transaction] = Flock::ExecuteOperations.new(@service, priority)
+        Thread.current[:edge_transaction] = Flock::ExecuteOperations.new(@service, priority, execute_at)
       else
         current_transaction
       end
