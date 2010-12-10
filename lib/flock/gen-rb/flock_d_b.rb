@@ -238,12 +238,11 @@ require 'flockdb_types'
               # HELPER FUNCTIONS AND STRUCTURES
 
               class Contains_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SOURCE_ID = 1
                 GRAPH_ID = 2
                 DESTINATION_ID = 3
 
-                ::Thrift::Struct.field_accessor self, :source_id, :graph_id, :destination_id
                 FIELDS = {
                   SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
                   GRAPH_ID => {:type => ::Thrift::Types::I32, :name => 'graph_id'},
@@ -255,14 +254,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Contains_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::BOOL, :name => 'success'},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
@@ -273,15 +272,15 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Get_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SOURCE_ID = 1
                 GRAPH_ID = 2
                 DESTINATION_ID = 3
 
-                ::Thrift::Struct.field_accessor self, :source_id, :graph_id, :destination_id
                 FIELDS = {
                   SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
                   GRAPH_ID => {:type => ::Thrift::Types::I32, :name => 'graph_id'},
@@ -293,14 +292,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Get_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => Flock::Edges::Edge},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
@@ -311,13 +310,13 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Select2_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 QUERIES = 1
 
-                ::Thrift::Struct.field_accessor self, :queries
                 FIELDS = {
                   QUERIES => {:type => ::Thrift::Types::LIST, :name => 'queries', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::SelectQuery}}
                 }
@@ -327,14 +326,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Select2_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::LIST, :name => 'success', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::Results}},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
@@ -345,13 +344,13 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Count2_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 QUERIES = 1
 
-                ::Thrift::Struct.field_accessor self, :queries
                 FIELDS = {
                   QUERIES => {:type => ::Thrift::Types::LIST, :name => 'queries', :element => {:type => ::Thrift::Types::LIST, :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::SelectOperation}}}
                 }
@@ -361,16 +360,16 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Count2_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
-                  SUCCESS => {:type => ::Thrift::Types::STRING, :name => 'success'},
+                  SUCCESS => {:type => ::Thrift::Types::STRING, :name => 'success', :binary => true},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
                 }
 
@@ -379,13 +378,13 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Select_edges_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 QUERIES = 1
 
-                ::Thrift::Struct.field_accessor self, :queries
                 FIELDS = {
                   QUERIES => {:type => ::Thrift::Types::LIST, :name => 'queries', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::EdgeQuery}}
                 }
@@ -395,14 +394,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Select_edges_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::LIST, :name => 'success', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::EdgeResults}},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
@@ -413,13 +412,13 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Execute_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 OPERATIONS = 1
 
-                ::Thrift::Struct.field_accessor self, :operations
                 FIELDS = {
                   OPERATIONS => {:type => ::Thrift::Types::STRUCT, :name => 'operations', :class => Flock::Edges::ExecuteOperations}
                 }
@@ -429,13 +428,13 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Execute_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :ex
                 FIELDS = {
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
                 }
@@ -445,13 +444,13 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Count_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 OPERATIONS = 1
 
-                ::Thrift::Struct.field_accessor self, :operations
                 FIELDS = {
                   OPERATIONS => {:type => ::Thrift::Types::LIST, :name => 'operations', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::SelectOperation}}
                 }
@@ -461,14 +460,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Count_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::I32, :name => 'success'},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
@@ -479,14 +478,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Select_args
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 OPERATIONS = 1
                 PAGE = 2
 
-                ::Thrift::Struct.field_accessor self, :operations, :page
                 FIELDS = {
                   OPERATIONS => {:type => ::Thrift::Types::LIST, :name => 'operations', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::SelectOperation}},
                   PAGE => {:type => ::Thrift::Types::STRUCT, :name => 'page', :class => Flock::Edges::Page}
@@ -497,14 +496,14 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
               class Select_result
-                include ::Thrift::Struct
+                include ::Thrift::Struct, ::Thrift::Struct_Union
                 SUCCESS = 0
                 EX = 1
 
-                ::Thrift::Struct.field_accessor self, :success, :ex
                 FIELDS = {
                   SUCCESS => {:type => ::Thrift::Types::STRUCT, :name => 'success', :class => Flock::Edges::Results},
                   EX => {:type => ::Thrift::Types::STRUCT, :name => 'ex', :class => Flock::Edges::FlockException}
@@ -515,6 +514,7 @@ require 'flockdb_types'
                 def validate
                 end
 
+                ::Thrift::Struct.generate_accessors self
               end
 
             end

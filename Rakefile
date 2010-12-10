@@ -22,8 +22,8 @@ begin
     gemspec.email = "freels@twitter.com"
     gemspec.homepage = "http://github.com/twitter/flockdb-client"
     gemspec.authors = ["Matt Freels", "Rael Dornfest", "Nick Kallen"]
-    gemspec.add_dependency 'thrift', '>= 0.2.0'
-    gemspec.add_dependency 'thrift_client', '>= 0.4.1'
+    gemspec.add_dependency 'thrift', '>= 0.5.0'
+    gemspec.add_dependency 'thrift_client', '>= 0.6.0'
 
     # development
     gemspec.add_development_dependency 'rspec'

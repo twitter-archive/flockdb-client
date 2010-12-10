@@ -43,7 +43,7 @@ module Flock
         end
 
         class FlockException < ::Thrift::Exception
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           def initialize(message=nil)
             super()
             self.description = message
@@ -53,7 +53,6 @@ module Flock
 
           DESCRIPTION = 1
 
-          ::Thrift::Struct.field_accessor self, :description
           FIELDS = {
             DESCRIPTION => {:type => ::Thrift::Types::STRING, :name => 'description'}
           }
@@ -63,17 +62,17 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class Results
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           IDS = 1
           NEXT_CURSOR = 2
           PREV_CURSOR = 3
 
-          ::Thrift::Struct.field_accessor self, :ids, :next_cursor, :prev_cursor
           FIELDS = {
-            IDS => {:type => ::Thrift::Types::STRING, :name => 'ids'},
+            IDS => {:type => ::Thrift::Types::STRING, :name => 'ids', :binary => true},
             NEXT_CURSOR => {:type => ::Thrift::Types::I64, :name => 'next_cursor'},
             PREV_CURSOR => {:type => ::Thrift::Types::I64, :name => 'prev_cursor'}
           }
@@ -83,14 +82,14 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class Page
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           COUNT = 1
           CURSOR = 2
 
-          ::Thrift::Struct.field_accessor self, :count, :cursor
           FIELDS = {
             COUNT => {:type => ::Thrift::Types::I32, :name => 'count'},
             CURSOR => {:type => ::Thrift::Types::I64, :name => 'cursor'}
@@ -101,10 +100,11 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class Edge
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           SOURCE_ID = 1
           DESTINATION_ID = 2
           POSITION = 3
@@ -112,7 +112,6 @@ module Flock
           COUNT = 5
           STATE_ID = 6
 
-          ::Thrift::Struct.field_accessor self, :source_id, :destination_id, :position, :updated_at, :count, :state_id
           FIELDS = {
             SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
             DESTINATION_ID => {:type => ::Thrift::Types::I64, :name => 'destination_id'},
@@ -127,22 +126,22 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class QueryTerm
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           SOURCE_ID = 1
           GRAPH_ID = 2
           IS_FORWARD = 3
           DESTINATION_IDS = 4
           STATE_IDS = 5
 
-          ::Thrift::Struct.field_accessor self, :source_id, :graph_id, :is_forward, :destination_ids, :state_ids
           FIELDS = {
             SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
             GRAPH_ID => {:type => ::Thrift::Types::I32, :name => 'graph_id'},
             IS_FORWARD => {:type => ::Thrift::Types::BOOL, :name => 'is_forward'},
-            DESTINATION_IDS => {:type => ::Thrift::Types::STRING, :name => 'destination_ids', :optional => true},
+            DESTINATION_IDS => {:type => ::Thrift::Types::STRING, :name => 'destination_ids', :binary => true, :optional => true},
             STATE_IDS => {:type => ::Thrift::Types::LIST, :name => 'state_ids', :element => {:type => ::Thrift::Types::I32}, :optional => true}
           }
 
@@ -151,14 +150,14 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class SelectOperation
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           OPERATION_TYPE = 1
           TERM = 2
 
-          ::Thrift::Struct.field_accessor self, :operation_type, :term
           FIELDS = {
             OPERATION_TYPE => {:type => ::Thrift::Types::I32, :name => 'operation_type', :enum_class => Flock::Edges::SelectOperationType},
             TERM => {:type => ::Thrift::Types::STRUCT, :name => 'term', :class => Flock::Edges::QueryTerm, :optional => true}
@@ -172,15 +171,15 @@ module Flock
             end
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class ExecuteOperation
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           OPERATION_TYPE = 1
           TERM = 2
           POSITION = 3
 
-          ::Thrift::Struct.field_accessor self, :operation_type, :term, :position
           FIELDS = {
             OPERATION_TYPE => {:type => ::Thrift::Types::I32, :name => 'operation_type', :enum_class => Flock::Edges::ExecuteOperationType},
             TERM => {:type => ::Thrift::Types::STRUCT, :name => 'term', :class => Flock::Edges::QueryTerm},
@@ -195,15 +194,15 @@ module Flock
             end
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class ExecuteOperations
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           OPERATIONS = 1
           EXECUTE_AT = 2
           PRIORITY = 3
 
-          ::Thrift::Struct.field_accessor self, :operations, :execute_at, :priority
           FIELDS = {
             OPERATIONS => {:type => ::Thrift::Types::LIST, :name => 'operations', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::ExecuteOperation}},
             EXECUTE_AT => {:type => ::Thrift::Types::I32, :name => 'execute_at', :optional => true},
@@ -218,14 +217,14 @@ module Flock
             end
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class SelectQuery
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           OPERATIONS = 1
           PAGE = 2
 
-          ::Thrift::Struct.field_accessor self, :operations, :page
           FIELDS = {
             OPERATIONS => {:type => ::Thrift::Types::LIST, :name => 'operations', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::SelectOperation}},
             PAGE => {:type => ::Thrift::Types::STRUCT, :name => 'page', :class => Flock::Edges::Page}
@@ -236,14 +235,14 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class EdgeQuery
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           TERM = 1
           PAGE = 2
 
-          ::Thrift::Struct.field_accessor self, :term, :page
           FIELDS = {
             TERM => {:type => ::Thrift::Types::STRUCT, :name => 'term', :class => Flock::Edges::QueryTerm},
             PAGE => {:type => ::Thrift::Types::STRUCT, :name => 'page', :class => Flock::Edges::Page}
@@ -254,15 +253,15 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
         class EdgeResults
-          include ::Thrift::Struct
+          include ::Thrift::Struct, ::Thrift::Struct_Union
           EDGES = 1
           NEXT_CURSOR = 2
           PREV_CURSOR = 3
 
-          ::Thrift::Struct.field_accessor self, :edges, :next_cursor, :prev_cursor
           FIELDS = {
             EDGES => {:type => ::Thrift::Types::LIST, :name => 'edges', :element => {:type => ::Thrift::Types::STRUCT, :class => Flock::Edges::Edge}},
             NEXT_CURSOR => {:type => ::Thrift::Types::I64, :name => 'next_cursor'},
@@ -274,6 +273,7 @@ module Flock
           def validate
           end
 
+          ::Thrift::Struct.generate_accessors self
         end
 
       end
