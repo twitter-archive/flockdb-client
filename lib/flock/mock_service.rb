@@ -1,6 +1,5 @@
 module Flock
-  module MockService
-    extend self
+  class MockService
 
     EXEC_OPS = {
       Edges::ExecuteOperationType::Add => :add,
