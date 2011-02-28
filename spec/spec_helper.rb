@@ -7,13 +7,15 @@ $: << File.expand_path("#{spec_dir}/../lib")
 require 'flock'
 require 'flock/mock_service'
 
+$mock_service = Flock::MockService.new
+
 Spec::Runner.configure do |config|
   config.mock_with :rr
   config.before do
-    Flock::MockService.clear
+    $mock_service.clear
   end
 end
 
 def new_flock_client
-  Flock.new(Flock::MockService)
+  Flock.new($mock_service)
 end
