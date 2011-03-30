@@ -46,11 +46,14 @@ class Flock::Client
     @cache = {} if @cache
   end
 
-
   # queries
 
   def select(*query)
     Flock::SimpleOperation.new(self, _query_args(query))
+  end
+
+  def get_metadata(table_id, source_id)
+    @service.get_metadata(table_id, source_id)
   end
 
   def contains(*query)

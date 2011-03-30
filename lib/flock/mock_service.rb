@@ -50,6 +50,16 @@ module Flock
       iterate(select_query(select_operations), page)
     end
 
+    def get_metadata(graph, source)
+      count = graph < 0 ? backward_edges[graph][Edges::EdgeState::Positive][source] :
+        forward_edges[graph][Edges::EdgeState::Positive][source]
+      count && Edges::Metadata.new(
+        :source_id => source,
+        :state_id => Edges::EdgeState::Positive,
+        :updated_at => Date.new,
+        :count => count.size)
+    end
+
     def contains(source, graph, dest)
       forward_edges[graph][Edges::EdgeState::Positive][source].include?(dest)
     end

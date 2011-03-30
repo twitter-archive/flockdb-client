@@ -34,6 +34,20 @@ describe Flock do
     end
   end
 
+  describe 'select metadata' do
+    before do
+      @query = flock.get_metadata(1,1)
+    end
+
+    it "count should be 2" do
+      @query.count.should == 2
+    end
+
+    it "source should be 1" do
+      @query.source_id.should == 1
+    end
+  end
+
   describe 'negate' do
     it 'works' do
       flock.negate(1,1,2)
