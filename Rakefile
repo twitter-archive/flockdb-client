@@ -32,3 +32,20 @@ begin
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
 end
+
+namespace :thrift do
+  task :prereq do
+    raise "You need thrift version 0.5.0" unless `thrift -version`['0.5.0']
+  end
+
+  desc "Download latest flockdb.thrift"
+  task :download => :prereq do
+    `mkdir thrift; curl https://github.com/twitter/flockdb/raw/master/src/main/thrift/Flockdb.thrift > thrift/flockdb.thrift`
+  end
+  
+  desc "Build flockdb.thrift"
+  task :build => :prereq do
+    exec("thrift --gen rb -o lib/flock thrift/flockdb.thrift")
+  end
+end
+
