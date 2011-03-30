@@ -12,26 +12,12 @@ Spec::Rake::SpecTask.new(:spec) do |t|
   t.spec_files = FileList['spec/**/*_spec.rb']
 end
 
-# gemification with jeweler
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "flockdb"
-    gemspec.summary = "Ruby Flock client"
-    gemspec.description = "Get your flock on in Ruby."
-    gemspec.email = "freels@twitter.com"
-    gemspec.homepage = "http://github.com/twitter/flockdb-client"
-    gemspec.authors = ["Matt Freels", "Rael Dornfest", "Nick Kallen"]
-    gemspec.add_dependency 'thrift', '>= 0.5.0'
-    gemspec.add_dependency 'thrift_client', '>= 0.6.0'
-
-    # development
-    gemspec.add_development_dependency 'rspec'
-    gemspec.add_development_dependency 'rr'
-  end
-rescue LoadError
-  puts "Jeweler not available. Install it with: gem install jeweler"
+def run(cmd)
+  system(cmd) or raise("Unable to run\n#{cmd}")
 end
+
+require 'bundler'
+Bundler::GemHelper.install_tasks
 
 namespace :thrift do
   task :prereq do
@@ -40,12 +26,14 @@ namespace :thrift do
 
   desc "Download latest flockdb.thrift"
   task :download => :prereq do
-    `mkdir thrift; curl https://github.com/twitter/flockdb/raw/master/src/main/thrift/Flockdb.thrift > thrift/flockdb.thrift`
+    run "mkdir -p thrift; curl https://github.com/twitter/flockdb/raw/master/src/main/thrift/Flockdb.thrift > thrift/flockdb.thrift"
   end
   
   desc "Build flockdb.thrift"
   task :build => :prereq do
-    exec("thrift --gen rb -o lib/flock thrift/flockdb.thrift")
+    run "thrift --gen rb -o lib/flock thrift/flockdb.thrift"
   end
 end
 
+desc "Download & build latest flockdb thrift"
+task :thrift => ['thrift:download', 'thrift:build']
