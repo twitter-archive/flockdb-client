@@ -37,4 +37,4 @@ namespace :thrift do
 end
 
 desc "Download & build latest flockdb thrift"
-task :thrift => ['thrift:download', 'thrift:build']
+task :thrift => ['thrift:build']
