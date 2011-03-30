@@ -1,7 +1,8 @@
 ROOT_DIR = File.expand_path(File.dirname(__FILE__))
 
-require 'rubygems' rescue nil
-require 'rake'
+require 'rubygems'
+require 'bundler'
+Bundler.setup
 require 'spec/rake/spectask'
 
 task :default => :spec
