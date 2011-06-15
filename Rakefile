@@ -12,23 +12,4 @@ Spec::Rake::SpecTask.new(:spec) do |t|
   t.spec_files = FileList['spec/**/*_spec.rb']
 end
 
-# gemification with jeweler
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "flockdb"
-    gemspec.summary = "Ruby Flock client"
-    gemspec.description = "Get your flock on in Ruby."
-    gemspec.email = "freels@twitter.com"
-    gemspec.homepage = "http://github.com/twitter/flockdb-client"
-    gemspec.authors = ["Matt Freels", "Rael Dornfest", "Nick Kallen"]
-    gemspec.add_dependency 'thrift', '>= 0.5.0'
-    gemspec.add_dependency 'thrift_client', '>= 0.6.0'
-
-    # development
-    gemspec.add_development_dependency 'rspec'
-    gemspec.add_development_dependency 'rr'
-  end
-rescue LoadError
-  puts "Jeweler not available. Install it with: gem install jeweler"
-end
+require 'bundler/gem_tasks'

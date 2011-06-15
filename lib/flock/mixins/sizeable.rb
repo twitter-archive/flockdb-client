@@ -8,7 +8,7 @@ module Flock
           map(&block).any?
         end
       end
-      
+
       def empty?
         size == 0
       end

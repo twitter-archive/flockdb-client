@@ -5,26 +5,24 @@ require 'thrift_client'
 require 'flock/mixins/sizeable'
 
 # thrift sources. load order is important.
-module Flock
-  module Edges
-    module FlockDB
-    end
-  end
-end
-require 'flock/thrift'
+$LOAD_PATH << File.join(File.dirname(__FILE__), 'flock', 'gen-rb')
 
-require 'flock/operation'
-require 'flock/operations/query_term'
-require 'flock/operations/select_operation'
-require 'flock/operations/complex_operation'
-require 'flock/operations/simple_operation'
-require 'flock/operations/execute_operation'
-require 'flock/operations/execute_operations'
-require 'flock/service'
-require 'flock/client'
+require 'flockdb_types'
+require 'flockdb_constants'
+require 'flock_d_b'
 
 module Flock
-  autoload :MockService, 'flock/mock_service'
+  autoload :MockService,       'flock/mock_service'
+  autoload :Operation,         'flock/operation'
+  autoload :QueryTerm,         'flock/operations/query_term'
+  autoload :SelectOperation,   'flock/operations/select_operation'
+  autoload :ComplexOperation,  'flock/operations/complex_operation'
+  autoload :SimpleOperation,   'flock/operations/simple_operation'
+  autoload :ExecuteOperation,  'flock/operations/execute_operation'
+  autoload :ExecuteOperations, 'flock/operations/execute_operations'
+  autoload :SelectOperations,  'flock/operations/select_operations'
+  autoload :Service,           'flock/service'
+  autoload :Client,            'flock/client'
 
   FlockException = Edges::FlockException
   Priority = Edges::Priority
@@ -41,7 +39,7 @@ module Flock
 
   class UnknownStateError < FlockException
     def initialize(state)
-      super("Unable to look up id for state #{state.inspect}. Valid states are #{ Flock::Client::STATES.keys.sort.map{|s| s.inspect }.join(', ') }")
+      super("Unable to look up id for state #{state.inspect}. Valid states are #{ Flock::QueryTerm::STATES.keys.map{|s| s.inspect }.join(', ') }")
     end
   end
 

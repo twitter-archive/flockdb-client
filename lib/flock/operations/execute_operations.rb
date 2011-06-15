@@ -6,8 +6,18 @@ module Flock
 
     Flock::Edges::ExecuteOperationType::VALUE_MAP.each do |op_id, op|
       op = op.downcase
-      class_eval "def #{op}(s, g, d, p = nil); @operations << ExecuteOperation.new(#{op_id}, [s, g, d], p); self end", __FILE__, __LINE__
+      class_eval <<-EOT, __FILE__, __LINE__ + 1
+        def #{op}(s, g, d, p = nil)
+          @operations << ExecuteOperation.new(#{op_id}, Flock::QueryTerm.new([s, g, d]), p)
+          self
+        end
+      EOT
     end
+
+    ##Flock::Edges::ExecuteOperationType::VALUE_MAP.each do |op_id, op|
+    ##  op = op.downcase
+    ##  class_eval "def #{op}(s, g, d, p = nil); @operations << ExecuteOperation.new(#{op_id}, [s, g, d], p); self end", __FILE__, __LINE__
+    ##end
 
     def apply
       @service.execute(to_thrift)

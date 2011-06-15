@@ -103,6 +103,28 @@ module Flock
           ::Thrift::Struct.generate_accessors self
         end
 
+        class Metadata
+          include ::Thrift::Struct, ::Thrift::Struct_Union
+          SOURCE_ID = 1
+          STATE_ID = 2
+          COUNT = 3
+          UPDATED_AT = 4
+
+          FIELDS = {
+            SOURCE_ID => {:type => ::Thrift::Types::I64, :name => 'source_id'},
+            STATE_ID => {:type => ::Thrift::Types::I32, :name => 'state_id'},
+            COUNT => {:type => ::Thrift::Types::I32, :name => 'count'},
+            UPDATED_AT => {:type => ::Thrift::Types::I32, :name => 'updated_at'}
+          }
+
+          def struct_fields; FIELDS; end
+
+          def validate
+          end
+
+          ::Thrift::Struct.generate_accessors self
+        end
+
         class Edge
           include ::Thrift::Struct, ::Thrift::Struct_Union
           SOURCE_ID = 1

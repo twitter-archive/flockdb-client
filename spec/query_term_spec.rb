@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Flock::QueryTerm do
   describe '#new' do
-    it 'requires a query of length 4' do
-      lambda { Flock::QueryTerm.new([1, 1, 1, 1, 1]) }.should raise_error(ArgumentError)
+    it 'requires a query of length >= 3' do
+      lambda { Flock::QueryTerm.new([1, 1]) }.should raise_error(ArgumentError)
     end
 
     it 'has a source, graph, destination, and states' do
@@ -61,5 +61,17 @@ describe Flock::QueryTerm do
     it "should add state to thrift object" do
       @term.to_thrift.state_ids.should == [Flock::Edges::EdgeState::Positive, Flock::Edges::EdgeState::Negative]
     end
+  end
+
+  describe 'when given symbols' do
+    it 'works for graphs' do
+      expected = Flock::QueryTerm.new([1, 1, 2, [Flock::Edges::EdgeState::Positive, Flock::Edges::EdgeState::Negative]])
+      qt = Flock::QueryTerm.new([1, :follows, 2, [Flock::Edges::EdgeState::Positive, Flock::Edges::EdgeState::Negative]], :follows => 1)
+    end
+
+    it 'works for states' do
+      expected = Flock::QueryTerm.new([1, 1, 2, [Flock::Edges::EdgeState::Positive, Flock::Edges::EdgeState::Negative]])
+      qt = Flock::QueryTerm.new([1, :follows, 2, :positive, :negative], :follows => 1)
+     end
   end
 end

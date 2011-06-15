@@ -1,10 +1,5 @@
 class Flock::Client
 
-  # symbol => state_id map
-  STATES = Flock::Edges::EdgeState::VALUE_MAP.inject({}) do |states, (id, name)|
-    states.update name.downcase.to_sym => id
-  end.freeze
-
   attr_accessor :graphs
   attr_reader :service
 
@@ -15,6 +10,7 @@ class Flock::Client
   # takes arguments a list of servers and an options hash to pass to the default service_class,
   # or a service itself
   def initialize(servers = nil, options = {})
+    options = options.dup
     if graphs = (options.delete(:graphs) || Flock.graphs)
       @graphs = graphs
     end
@@ -46,15 +42,27 @@ class Flock::Client
     @cache = {} if @cache
   end
 
-
   # queries
 
+  def multi(&block)
+    select_operations = Flock::SelectOperations.new(self)
+    yield select_operations
+    select_operations
+  end
+
   def select(*query)
-    Flock::SimpleOperation.new(self, _query_args(query))
+    query = query.first if query.size == 1 # supports deprecated API [[1, 2, 3]]
+    Flock::SimpleOperation.new(self, Flock::QueryTerm.new(query, graphs))
+  end
+
+  def get(source, graph, destination)
+    raise ArgumentError unless source.is_a?(Fixnum) && destination.is_a?(Fixnum)
+
+    select(source, graph, destination, [:positive, :removed, :negative, :archived]).edges.paginate(1).current_page.first
   end
 
   def contains(*query)
-    query = _query_args(query)[0, 3]
+    query = Flock::QueryTerm.new(query, graphs).unapply[0, 3]
     _cache :contains, query do
       service.contains(*query)
     end
@@ -70,9 +78,11 @@ class Flock::Client
 
   # edge manipulation
 
-  def update(method, source_id, graph, destination_id, priority = Flock::Priority::High, options = {})
-    execute_at = options.delete(:execute_at)
-    position = options.delete(:position)
+  def update(method, source_id, graph, destination_id, *args)
+    options = args.last.is_a?(Hash) ? args.pop : nil
+    priority = args.first || Flock::Priority::High
+    execute_at = options && options[:execute_at]
+    position = options && options[:position]
 
     _cache_clear
     ops = current_transaction || Flock::ExecuteOperations.new(@service, priority, execute_at)
@@ -87,15 +97,12 @@ class Flock::Client
 
   alias unarchive add
 
-  def transaction(priority = Flock::Priority::High, options = {}, &block)
-    execute_at = options.delete(:execute_at)
-    position = options.delete(:position)
-
+  def transaction(priority = Flock::Priority::High, &block)
     new_transaction = !in_transaction?
 
     ops =
       if new_transaction
-        Thread.current[:edge_transaction] = Flock::ExecuteOperations.new(@service, priority, execute_at)
+        Thread.current[:edge_transaction] = Flock::ExecuteOperations.new(service, priority)
       else
         current_transaction
       end
@@ -116,9 +123,7 @@ class Flock::Client
     !!Thread.current[:edge_transaction]
   end
 
-
-  # graph name lookup utility methods
-
+  private
   def _lookup_graph(key)
     if @graphs.nil? or key.is_a? Integer
       key
@@ -146,4 +151,5 @@ class Flock::Client
     return node.map {|n| n.to_i if n } if node.respond_to? :map
     node.to_i if node
   end
+  
 end
