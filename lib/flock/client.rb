@@ -79,10 +79,7 @@ class Flock::Client
   # edge manipulation
 
   def update(method, source_id, graph, destination_id, *args)
-    options = args.last.is_a?(Hash) ? args.pop : nil
-    priority = args.first || Flock::Priority::High
-    execute_at = options && options[:execute_at]
-    position = options && options[:position]
+    priority, execute_at, position = process_args(args)
 
     _cache_clear
     ops = current_transaction || Flock::ExecuteOperations.new(@service, priority, execute_at)
@@ -97,12 +94,13 @@ class Flock::Client
 
   alias unarchive add
 
-  def transaction(priority = Flock::Priority::High, &block)
+  def transaction(*args, &block)
+    priority, execute_at, _ = process_args(args)
     new_transaction = !in_transaction?
 
     ops =
       if new_transaction
-        Thread.current[:edge_transaction] = Flock::ExecuteOperations.new(service, priority)
+        Thread.current[:edge_transaction] = Flock::ExecuteOperations.new(@service, priority, execute_at)
       else
         current_transaction
       end
@@ -151,5 +149,9 @@ class Flock::Client
     return node.map {|n| n.to_i if n } if node.respond_to? :map
     node.to_i if node
   end
-  
+
+  def process_args(args)
+    options = args.last.is_a?(Hash) ? args.pop : nil
+    [args.first || Flock::Priority::High, options && options[:execute_at], options && options[:position]]
+  end
 end
