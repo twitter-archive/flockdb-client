@@ -8,7 +8,7 @@ module Flock
       op = Edges::ExecuteOperation.new
       op.operation_type = @operation_type
       op.position = @position if @position
-      op.term = QueryTerm.new(@query).to_thrift
+      op.term = @query.to_thrift
       op
     end
   end

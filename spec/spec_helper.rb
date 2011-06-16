@@ -17,5 +17,5 @@ Spec::Runner.configure do |config|
 end
 
 def new_flock_client
-  Flock.new($mock_service)
+  Flock.new($mock_service, :graphs => { :schmaph => 1 })
 end

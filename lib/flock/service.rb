@@ -10,7 +10,7 @@ module Flock
         servers = Array(servers)
       end
 
-      super(Edges::FlockDB::Client, servers, DEFAULTS.merge(options))
+      super(Edges::Client, servers, DEFAULTS.merge(options))
     end
   end
 end

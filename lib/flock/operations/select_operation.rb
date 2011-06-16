@@ -1,4 +1,3 @@
-
 module Flock
   class SelectOperation
     [:each, :paginate, :to_ary, :size, :first].each do |method|
