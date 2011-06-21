@@ -148,16 +148,16 @@ describe Flock do
   describe "positions" do
     it "works" do
       flock.add(4,5,6,:position => 7)
-      flock.get(4,5,6).position.should == 7
+      flock.get(4,5,6).position.should == 7 << 20
     end
 
     it "behaves like the server, not moving position on double adds, but moving position on delete-add" do
       flock.add(4,5,6,:position => 7)
-      flock.add(4,5,6,:position => 8)
-      flock.get(4,5,6).position.should == 7
+      flock.archive(4,5,6,:position => 8)
+      flock.get(4,5,6).position.should == 7 << 20
       flock.remove(4,5,6)
       flock.add(4,5,6,:position => 8)
-      flock.get(4,5,6).position.should == 8
+      flock.get(4,5,6).position.should == 8 << 20
     end
   end
 
@@ -211,7 +211,7 @@ describe Flock do
         edge1 = Flock::Edges::Edge.new
         edge1.source_id = 1
         edge1.destination_id = 2
-        edge1.position = Time.now.to_i
+        edge1.position = Time.now.to_i << 20
         edge1.updated_at = Time.now.to_i
         edge1.count = 1
         edge1.state_id = 0
@@ -219,7 +219,7 @@ describe Flock do
         edge2 = Flock::Edges::Edge.new
         edge2.source_id = 1
         edge2.destination_id = 3
-        edge2.position = Time.now.to_i
+        edge2.position = Time.now.to_i << 20
         edge2.updated_at = Time.now.to_i
         edge2.count = 1
         edge2.state_id = 0
@@ -300,7 +300,7 @@ describe Flock do
           stub(Time).now { time }
 
           prototype = Flock::Edges::Edge.new
-          prototype.position = Time.now.to_i
+          prototype.position = Time.now.to_i << 20
           prototype.updated_at = Time.now.to_i
           prototype.count = 1
           prototype.state_id = 0

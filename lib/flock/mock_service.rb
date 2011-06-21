@@ -195,8 +195,8 @@ module Flock
 
     def add_edge(state, source, dest, time, pos)
       if existing_edge = @by_pair[[source, dest]]
-        if ![Edges::EdgeState::Positive, Edges::EdgeState::Archived].include?(existing_edge.state_id) && state == Edges::EdgeState::Positive
-          existing_edge.position = pos
+        if existing_edge.state_id != Edges::EdgeState::Archived && state == Edges::EdgeState::Positive
+          existing_edge.position = pos << 20
         end
         existing_edge.state_id = state
         existing_edge.updated_at = time.to_i
@@ -250,7 +250,7 @@ module Flock
         edge.source_id = source
         edge.destination_id = dest
         edge.updated_at = time.to_i
-        edge.position = pos
+        edge.position = pos << 20
         edge.count = 1
         edge.state_id = state
       end
