@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    flockdb (0.6.1)
+    flockdb (0.7.1)
       thrift (>= 0.5.0)
       thrift_client (>= 0.6.0)
 
