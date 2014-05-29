@@ -27,7 +27,7 @@ expects a list (or a single) servers as the first argument, and an
 options hash. Flock::Client.new takes the same options as ThriftClient
 for configuring the raw thrift client, as well as :graphs for mapping
 ruby symbols to the corresponding graph ids. See [thrift_client's
-documentation](http://github.com/fauna/thrift_client) for information
+documentation](https://github.com/twitter/thrift_client) for information
 on the other options it takes.
 
 Edge manipulation:
