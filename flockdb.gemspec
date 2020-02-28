@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'thrift', '>= 0.5.0'
   s.add_dependency 'thrift_client', '>= 0.6.0'
   s.add_development_dependency 'bundler', '~> 1.0.10'
-  s.add_development_dependency 'rake', '= 0.8.7'
+  s.add_development_dependency 'rake', '= 13.0.1'
   s.add_development_dependency 'rspec', '~> 1.3.0'
   s.add_development_dependency 'diff-lcs'
   s.add_development_dependency 'rr'
